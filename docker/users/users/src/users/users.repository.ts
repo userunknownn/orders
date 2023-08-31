@@ -31,8 +31,6 @@ export class UsersRepository {
     email: string;
     phone_number: string;
     birth_date: Date;
-    created_at: Date;
-    updated_at: Date;
   }): Promise<User> {
     try {
       return await this.prismaClient.user.create({

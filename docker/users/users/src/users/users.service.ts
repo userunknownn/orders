@@ -19,12 +19,8 @@ export class UsersService {
   }
 
   async createUser(userInfo: CreateUserRequest): Promise<User> {
-    const currentTime = new Date();
-
     return this.repository.create({
       ...this.formatUserToMatchDatabaseKeys(userInfo),
-      created_at: currentTime,
-      updated_at: currentTime,
     });
   }
 
@@ -36,11 +32,8 @@ export class UsersService {
     { id }: UserIdentification,
     userInfo: UpdateUserRequest,
   ): Promise<User> {
-    const currentTime = new Date();
-
     return this.repository.update(Number(id), {
       ...this.formatUserToMatchDatabaseKeys(userInfo),
-      updated_at: currentTime,
     });
   }
 
