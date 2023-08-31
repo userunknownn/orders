@@ -30,13 +30,6 @@ describe('UsersService', () => {
             update: jest.fn(),
           },
         },
-        Date,
-        {
-          provide: Date,
-          useValue: {
-            new: jest.fn(() => new Date('2023-08-31T12:00:00Z2023-08-31')),
-          },
-        },
         PrismaClient,
       ],
     }).compile();
@@ -110,8 +103,6 @@ describe('UsersService', () => {
 
   describe('updateUser', () => {
     it('should update a user', async () => {
-      const currentTime = new Date();
-
       await service.updateUser(
         {
           id: 1,
@@ -119,10 +110,7 @@ describe('UsersService', () => {
         updateUserMock,
       );
 
-      expect(repository.update).toBeCalledWith(1, {
-        ...formattedUserMock,
-        updated_at: currentTime,
-      });
+      expect(repository.update).toBeCalledWith(1, formattedUserMock);
     });
 
     it('should throw an error if the user does not exists', () => {
