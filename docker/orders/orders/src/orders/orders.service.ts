@@ -15,8 +15,6 @@ export class OrdersService {
     private readonly httpService: HttpService,
   ) {}
 
-  private users = [];
-
   async getOrders(): Promise<Order[]> {
     return this.repository.findAll();
   }
