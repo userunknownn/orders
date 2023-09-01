@@ -40,7 +40,6 @@ lerna-debug.log*
 # Frontend ignore
 
 # dependencies
-/node_modules
 /.pnp
 .pnp.js
 
@@ -48,11 +47,11 @@ lerna-debug.log*
 /coverage
 
 # next.js
-/.next/
+*next/
 /out/
 
 # production
-/build
+*build
 
 # misc
 .DS_Store

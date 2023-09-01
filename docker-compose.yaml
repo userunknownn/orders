@@ -1,0 +1,82 @@
+services: 
+
+  users: 
+    build: docker/users
+    ports: 
+      - "3010:80" 
+    volumes: 
+      - ./docker/users/users:/users
+    environment: 
+      - DATABASE_URL=mysql://root:root@users_database:3306/mysql_database
+    container_name: users-microservice
+    depends_on:
+      - users_database
+    entrypoint: ["/entrypoint.sh"]
+    networks: 
+      - users_backend_network
+      - users_database_network
+
+  orders: 
+    build: docker/orders
+    ports: 
+      - "3020:80"
+    volumes:
+      - ./docker/orders/orders:/orders
+    environment: 
+      - DATABASE_URL=mysql://root:root@orders_database:3306/mysql_database
+    container_name: orders-microservice
+    depends_on:
+      - orders_database
+    entrypoint: ["/entrypoint.sh"]
+    networks: 
+      - orders_backend_network
+      - orders_database_network
+
+  api_gateway:
+    build: docker/api_gateway
+    ports:
+      - "3030:80"
+    volumes: 
+      - ./docker/api_gateway/api_gateway:/api_gateway
+    container_name: backend_gateway
+    depends_on: 
+      - users
+      - orders
+    entrypoint: ["/entrypoint.sh"]
+    networks: 
+      - users_backend_network
+      - orders_backend_network
+
+  users_database: 
+    image: mysql:8.0-debian
+    restart: always
+    ports: 
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=mysql_database
+      - MYSQL_ROOT_PASSWORD=root
+    container_name: users-database
+    networks: 
+      - users_database_network
+    
+  orders_database: 
+    image: mysql:8.0-debian
+    restart: always
+    ports: 
+      - "3308:3306"
+    environment:
+      - MYSQL_DATABASE=mysql_database
+      - MYSQL_ROOT_PASSWORD=root
+    container_name: orders-database
+    networks: 
+      - orders_database_network
+
+networks: 
+  users_backend_network:
+    name: users_backend_network
+  users_database_network:
+    name: users_database_network
+  orders_backend_network:
+    name: orders_backend_network
+  orders_database_network: 
+    name: orders_database_network
