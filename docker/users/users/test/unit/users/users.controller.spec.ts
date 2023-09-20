@@ -5,6 +5,7 @@ import { UsersService } from '../../../src/users/users.service';
 import { PrismaClient } from '@prisma/client';
 import { createUserMock } from './mock/users.mock';
 import { PrismaNotFoundException } from '../../../src/users/exceptions/prisma-not-found.exception';
+import { PrismaErrorHandler } from '../../../src/users/services/prisma-error-handler.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -27,6 +28,7 @@ describe('UsersController', () => {
         },
         UsersRepository,
         PrismaClient,
+        PrismaErrorHandler
       ],
     }).compile();
 
