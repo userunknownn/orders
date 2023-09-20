@@ -6,9 +6,7 @@ import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly repository: UsersRepository) {}
-
-  private users = [];
+  constructor(private readonly repository: UsersRepository) { }
 
   async getUsers(): Promise<User[]> {
     return this.repository.findAll();

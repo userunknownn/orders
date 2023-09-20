@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { PrismaErrors } from './enum/prisma-errors.enum';
-import { PrismaConstraintViolationException } from './exceptions/prisma-constraint-violation.exception';
-import { PrismaNotFoundException } from './exceptions/prisma-not-found.exception';
+import { PrismaErrorHandler } from './services/prisma-error-handler.service';
 import { User } from './types/user.type';
 
 @Injectable()
 export class UsersRepository {
-  constructor(private readonly prismaClient: PrismaClient) {}
+  constructor(private readonly prismaClient: PrismaClient,
+    private readonly prismaErrorHandler: PrismaErrorHandler) { }
 
   async findAll(): Promise<User[]> {
     return await this.prismaClient.user.findMany();
@@ -18,8 +17,7 @@ export class UsersRepository {
       return await this.prismaClient.user.findFirstOrThrow({ where: { id } });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == PrismaErrors.NOT_FOUND)
-          throw new PrismaNotFoundException();
+        this.prismaErrorHandler.handleError(error);
       }
     }
   }
@@ -38,8 +36,7 @@ export class UsersRepository {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == PrismaErrors.CONSTRAINT_VIOLATION)
-          throw new PrismaConstraintViolationException();
+        this.prismaErrorHandler.handleError(error);
       }
     }
   }
@@ -49,8 +46,7 @@ export class UsersRepository {
       return await this.prismaClient.user.delete({ where: { id } });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == PrismaErrors.NOT_FOUND)
-          throw new PrismaNotFoundException();
+        this.prismaErrorHandler.handleError(error);
       }
     }
   }
@@ -63,8 +59,7 @@ export class UsersRepository {
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code == PrismaErrors.NOT_FOUND)
-          throw new PrismaNotFoundException();
+        this.prismaErrorHandler.handleError(error);
       }
     }
   }
