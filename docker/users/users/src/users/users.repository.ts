@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaErrorHandler } from './services/prisma-error-handler.service';
 import { User } from './types/user.type';
 
@@ -16,7 +16,7 @@ export class UsersRepository {
     try {
       return await this.prismaClient.user.findFirstOrThrow({ where: { id } });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (this.prismaErrorHandler.isPrimaError(error)) {
         this.prismaErrorHandler.handleError(error);
       }
     }
@@ -35,7 +35,7 @@ export class UsersRepository {
         data: { ...user },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (this.prismaErrorHandler.isPrimaError(error)) {
         this.prismaErrorHandler.handleError(error);
       }
     }
@@ -45,7 +45,7 @@ export class UsersRepository {
     try {
       return await this.prismaClient.user.delete({ where: { id } });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (this.prismaErrorHandler.isPrimaError(error)) {
         this.prismaErrorHandler.handleError(error);
       }
     }
@@ -58,7 +58,7 @@ export class UsersRepository {
         data: { ...user },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (this.prismaErrorHandler.isPrimaError(error)) {
         this.prismaErrorHandler.handleError(error);
       }
     }
