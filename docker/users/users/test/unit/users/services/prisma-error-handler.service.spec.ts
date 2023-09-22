@@ -19,6 +19,16 @@ describe('PrismaErrorHandlerService', () => {
         service = app.get<PrismaErrorHandler>(PrismaErrorHandler);
     });
 
+    describe("isPrismaError", () => {
+        it("should return true when the error is instance of PrismaClientKnownRequestError", () => {
+            expect(service.isPrimaError(notFoundError)).toBe(true);
+        });
+
+        it("should return false when the error is not a Prisma error", () => {
+            expect(service.isPrimaError(new Error)).toBe(false)
+        });
+    })
+
     describe("handleError", () => {
         it('Error code P2025 should throw not found exception', () => {
             expect(() => service.handleError(notFoundError))
