@@ -17,11 +17,11 @@ import { OrderIdentification } from './types/order-identification.type';
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly service: OrdersService) {}
+  constructor(private readonly service: OrdersService) { }
 
   @Get()
   getOrders(): Promise<any> {
-    return this.service.getOrders();
+    return this.service.getAll();
   }
 
   @Get(':id')
@@ -31,12 +31,12 @@ export class OrdersController {
     required: true,
   })
   getOrder(@Param() id: OrderIdentification): Promise<any> {
-    return this.service.getOrder(id);
+    return this.service.getById(id);
   }
 
   @Post()
   createOrder(@Body() request: CreateOrderRequest): Promise<any> {
-    return this.service.createOrder(request);
+    return this.service.create(request);
   }
 
   @Delete(':id')
@@ -46,7 +46,7 @@ export class OrdersController {
     required: true,
   })
   deleteOrder(@Param() id: OrderIdentification): Promise<any> {
-    return this.service.deleteOrder(id);
+    return this.service.delete(id);
   }
 
   @Patch(':id')
@@ -59,6 +59,6 @@ export class OrdersController {
     @Param() id: OrderIdentification,
     @Body() request: UpdateOrderRequest,
   ): Promise<any> {
-    return this.service.updateOrder(id, request);
+    return this.service.update(id, request);
   }
 }
