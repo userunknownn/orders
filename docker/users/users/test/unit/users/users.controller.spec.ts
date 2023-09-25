@@ -19,11 +19,11 @@ describe('UsersController', () => {
         {
           provide: UsersService,
           useValue: {
-            getUsers: jest.fn(),
-            getUser: jest.fn(),
-            createUser: jest.fn((user) => user),
-            deleteUser: jest.fn(),
-            updateUser: jest.fn(),
+            getAll: jest.fn(),
+            getById: jest.fn(),
+            create: jest.fn((user) => user),
+            delete: jest.fn(),
+            update: jest.fn(),
           },
         },
         UsersRepository,
@@ -37,23 +37,23 @@ describe('UsersController', () => {
   });
 
   describe('getUsers', () => {
-    it('should call UsersService getUsers method', () => {
+    it('should call UsersService getAll method', () => {
       controller.getUsers();
 
-      expect(service.getUsers).toBeCalled();
+      expect(service.getAll).toBeCalled();
     });
   });
 
   describe('getUser', () => {
-    it('should call UsersService getUser method', () => {
+    it('should call UsersService getById method', () => {
       controller.getUser({ id: 1 });
 
-      expect(service.getUser).toBeCalled();
+      expect(service.getById).toBeCalled();
     });
 
     it('should throw an error if the user is not found', async () => {
       jest
-        .spyOn(service, 'getUser')
+        .spyOn(service, 'getById')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(
@@ -63,23 +63,23 @@ describe('UsersController', () => {
   });
 
   describe('createUser', () => {
-    it('should call UsersService createUser with the correct value', async () => {
+    it('should call UsersService create with the correct value', async () => {
       controller.createUser(createUserMock);
 
-      expect(service.createUser).toBeCalledWith(createUserMock);
+      expect(service.create).toBeCalledWith(createUserMock);
     });
   });
 
   describe('deleteUser', () => {
-    it('should call UsersService deleteUser with the correct value', async () => {
+    it('should call UsersService delete with the correct value', async () => {
       controller.deleteUser({ id: 1 });
 
-      expect(service.deleteUser).toBeCalledWith({ id: 1 });
+      expect(service.delete).toBeCalledWith({ id: 1 });
     });
 
     it('should throw an error if the user is not found', async () => {
       jest
-        .spyOn(service, 'deleteUser')
+        .spyOn(service, 'delete')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(
@@ -89,11 +89,11 @@ describe('UsersController', () => {
   });
 
   describe('updateUser', () => {
-    it('should call UsersService updateUser with the correct value', async () => {
+    it('should call UsersService update with the correct value', async () => {
       const user = controller.createUser(createUserMock);
       controller.updateUser({ id: 1 }, { ...user, email: 'a@test.com' });
 
-      expect(service.updateUser).toBeCalledWith(
+      expect(service.update).toBeCalledWith(
         { id: 1 },
         {
           ...user,
@@ -104,7 +104,7 @@ describe('UsersController', () => {
 
     it('should throw an error if the user is not found', async () => {
       jest
-        .spyOn(service, 'updateUser')
+        .spyOn(service, 'update')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(

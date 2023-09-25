@@ -16,7 +16,6 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [],
       providers: [
         UsersService,
         UsersRepository,
@@ -38,23 +37,23 @@ describe('UsersService', () => {
     repository = app.get<UsersRepository>(UsersRepository);
   });
 
-  describe('getUsers', () => {
+  describe('getAll', () => {
     it('should return get the users list', async () => {
       jest.spyOn(repository, 'findAll').mockImplementationOnce(async () => []);
 
-      const users = await service.getUsers();
+      const users = await service.getAll();
 
       expect(users).toStrictEqual([]);
     });
   });
 
-  describe('getUser', () => {
+  describe('getById', () => {
     it('should return just a user from the repository', async () => {
       jest
         .spyOn(repository, 'findOne')
         .mockImplementationOnce(async () => createdUserMock);
 
-      const user = await service.getUser({ id: 1 });
+      const user = await service.getById({ id: 1 });
 
       expect(user).toStrictEqual(createdUserMock);
     });
@@ -64,28 +63,28 @@ describe('UsersService', () => {
         .spyOn(repository, 'findOne')
         .mockRejectedValueOnce(new PrismaNotFoundException());
 
-      expect(async () => await service.getUser({ id: 0 })).rejects.toThrowError(
+      expect(async () => await service.getById({ id: 0 })).rejects.toThrowError(
         'There is no records found',
       );
     });
   });
 
-  describe('createUser', () => {
+  describe('create', () => {
     it('should create a user', async () => {
       jest
         .spyOn(repository, 'findAll')
         .mockImplementationOnce(async () => [createdUserMock]);
 
-      await service.createUser(createUserMock);
-      const users = await service.getUsers();
+      await service.create(createUserMock);
+      const users = await service.getAll();
 
       expect(users).toStrictEqual([createdUserMock]);
     });
   });
 
-  describe('deleteUser', () => {
+  describe('delete', () => {
     it('should delete a user', async () => {
-      await service.deleteUser({ id: 1 });
+      await service.delete({ id: 1 });
 
       expect(repository.delete).toBeCalled();
     });
@@ -96,14 +95,14 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new PrismaNotFoundException());
 
       expect(async () => {
-        await service.deleteUser({ id: 0 });
+        await service.delete({ id: 0 });
       }).rejects.toThrowError('There is no records found');
     });
   });
 
-  describe('updateUser', () => {
+  describe('update', () => {
     it('should update a user', async () => {
-      await service.updateUser(
+      await service.update(
         {
           id: 1,
         },
@@ -117,8 +116,9 @@ describe('UsersService', () => {
       jest
         .spyOn(repository, 'update')
         .mockRejectedValueOnce(new PrismaNotFoundException());
+
       expect(
-        async () => await service.updateUser({ id: 0 }, updateUserMock),
+        async () => await service.update({ id: 0 }, updateUserMock),
       ).rejects.toThrowError('There is no records found');
     });
   });
