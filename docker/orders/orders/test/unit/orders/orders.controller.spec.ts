@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrdersRepository } from '../../../src/orders/orders.repository';
 import { OrdersController } from '../../../src/orders/orders.controller';
 import { OrdersService } from '../../../src/orders/orders.service';
-import { PrismaClient } from '@prisma/client';
 import { PrismaNotFoundException } from '../../../src/orders/exceptions/prisma-not-found.exception';
 import { createOrderMock, updateOrderMock } from './mock/orders.mock';
 
@@ -18,15 +16,13 @@ describe('OrdersController', () => {
         {
           provide: OrdersService,
           useValue: {
-            getOrders: jest.fn(),
-            getOrder: jest.fn(),
-            createOrder: jest.fn((order) => order),
-            deleteOrder: jest.fn(),
-            updateOrder: jest.fn(),
+            getAll: jest.fn(),
+            getById: jest.fn(),
+            create: jest.fn((order) => order),
+            delete: jest.fn(),
+            update: jest.fn(),
           },
         },
-        OrdersRepository,
-        PrismaClient,
       ],
     }).compile();
 
@@ -35,23 +31,23 @@ describe('OrdersController', () => {
   });
 
   describe('getOrders', () => {
-    it('should call OrdersService getOrders method', () => {
+    it('should call OrdersService getAll method', () => {
       controller.getOrders();
 
-      expect(service.getOrders).toBeCalled();
+      expect(service.getAll).toBeCalled();
     });
   });
 
   describe('getOrder', () => {
-    it('should call OrdersService getOrder method', () => {
+    it('should call OrdersService getById method', () => {
       controller.getOrder({ id: 1 });
 
-      expect(service.getOrder).toBeCalled();
+      expect(service.getById).toBeCalled();
     });
 
     it('should throw an error if the order is not found', async () => {
       jest
-        .spyOn(service, 'getOrder')
+        .spyOn(service, 'getById')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(
@@ -61,23 +57,23 @@ describe('OrdersController', () => {
   });
 
   describe('createOrder', () => {
-    it('should call OrdersService createOrder with the correct value', async () => {
+    it('should call OrdersService create with the correct value', async () => {
       controller.createOrder(createOrderMock);
 
-      expect(service.createOrder).toBeCalledWith(createOrderMock);
+      expect(service.create).toBeCalledWith(createOrderMock);
     });
   });
 
   describe('deleteOrder', () => {
-    it('should call OrdersService deleteOrder with the correct value', async () => {
+    it('should call OrdersService delete with the correct value', async () => {
       controller.deleteOrder({ id: 1 });
 
-      expect(service.deleteOrder).toBeCalledWith({ id: 1 });
+      expect(service.delete).toBeCalledWith({ id: 1 });
     });
 
     it('should throw an error if the order is not found', async () => {
       jest
-        .spyOn(service, 'deleteOrder')
+        .spyOn(service, 'delete')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(
@@ -87,14 +83,14 @@ describe('OrdersController', () => {
   });
 
   describe('updateOrder', () => {
-    it('should call OrdersService updateOrder with the correct value', async () => {
+    it('should call OrdersService update with the correct value', async () => {
       const order = controller.createOrder(createOrderMock);
       controller.updateOrder(
         { id: 1 },
         { ...order, description: 'bola de gude' },
       );
 
-      expect(service.updateOrder).toBeCalledWith(
+      expect(service.update).toBeCalledWith(
         { id: 1 },
         {
           ...order,
@@ -105,7 +101,7 @@ describe('OrdersController', () => {
 
     it('should throw an error if the order is not found', async () => {
       jest
-        .spyOn(service, 'updateOrder')
+        .spyOn(service, 'update')
         .mockRejectedValue(new PrismaNotFoundException());
 
       expect(

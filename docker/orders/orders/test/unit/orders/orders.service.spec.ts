@@ -1,10 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaClient } from '@prisma/client';
 import { OrdersRepository } from '../../../src/orders/orders.repository';
 import { OrdersService } from '../../../src/orders/orders.service';
 import { createOrderMock, updateOrderMock } from './mock/orders.mock';
-import { HttpService } from '@nestjs/axios';
 import { PrismaNotFoundException } from '../../../src/orders/exceptions/prisma-not-found.exception';
+import { UserValidatorService } from '../../../src/orders/services/user-validator.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
@@ -21,19 +20,18 @@ describe('OrdersService', () => {
           useValue: {
             findAll: jest.fn(),
             findOne: jest.fn(),
-            create: jest.fn().mockResolvedValue(createOrderMock), //created
+            create: jest.fn().mockResolvedValue(createOrderMock),
             delete: jest.fn(),
             update: jest.fn(),
           },
         },
-        HttpService,
+        UserValidatorService,
         {
-          provide: HttpService,
+          provide: UserValidatorService,
           useValue: {
-            get: jest.fn().mockResolvedValue([]),
-          },
+            validateByUserId: jest.fn().mockResolvedValue({ data: {} })
+          }
         },
-        PrismaClient,
       ],
     }).compile();
 
@@ -41,23 +39,23 @@ describe('OrdersService', () => {
     repository = app.get<OrdersRepository>(OrdersRepository);
   });
 
-  describe('getOrders', () => {
+  describe('getAll', () => {
     it('should return get the orders list', async () => {
       jest.spyOn(repository, 'findAll').mockImplementationOnce(async () => []);
 
-      const orders = await service.getOrders();
+      const orders = await service.getAll();
 
       expect(orders).toStrictEqual([]);
     });
   });
 
-  describe('getOrder', () => {
+  describe('getById', () => {
     it('should return just a order from the repository', async () => {
       jest
         .spyOn(repository, 'findOne')
         .mockImplementationOnce(async () => createOrderMock); //created
 
-      const order = await service.getOrder({ id: 1 });
+      const order = await service.getById({ id: 1 });
 
       expect(order).toStrictEqual(createOrderMock);
     });
@@ -68,34 +66,22 @@ describe('OrdersService', () => {
         .mockRejectedValueOnce(new PrismaNotFoundException());
 
       expect(
-        async () => await service.getOrder({ id: 0 }),
+        async () => await service.getById({ id: 0 }),
       ).rejects.toThrowError('There is no records found');
     });
   });
 
-  describe('createOrder', () => {
+  describe('create', () => {
     it('should create a order', async () => {
-      const validateUserMock = jest.spyOn(service as any, 'validateUser');
-      validateUserMock.mockResolvedValue({
-        data: {},
-      });
+      await service.create(createOrderMock);
 
-      jest
-        .spyOn(service, 'getOrders')
-        .mockImplementationOnce(async () => [createOrderMock]);
-
-      await service.createOrder(createOrderMock);
-      const orders = await service.getOrders();
-
-      expect(orders).toStrictEqual([createOrderMock]);
-
-      validateUserMock.mockRestore();
+      expect(repository.create).toBeCalledWith(createOrderMock);
     });
   });
 
   describe('deleteOrder', () => {
     it('should delete a order', async () => {
-      await service.deleteOrder({ id: 1 });
+      await service.delete({ id: 1 });
 
       expect(repository.delete).toBeCalled();
     });
@@ -106,14 +92,14 @@ describe('OrdersService', () => {
         .mockRejectedValueOnce(new PrismaNotFoundException());
 
       expect(async () => {
-        await service.deleteOrder({ id: 0 });
+        await service.delete({ id: 0 });
       }).rejects.toThrowError('There is no records found');
     });
   });
 
   describe('updateOrder', () => {
     it('should update a order', async () => {
-      await service.updateOrder(
+      await service.update(
         {
           id: 1,
         },
@@ -127,8 +113,9 @@ describe('OrdersService', () => {
       jest
         .spyOn(repository, 'update')
         .mockRejectedValueOnce(new PrismaNotFoundException());
+
       expect(
-        async () => await service.updateOrder({ id: 0 }, updateOrderMock),
+        async () => await service.update({ id: 0 }, updateOrderMock),
       ).rejects.toThrowError('There is no records found');
     });
   });
