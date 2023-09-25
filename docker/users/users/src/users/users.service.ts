@@ -8,31 +8,31 @@ import { UsersRepository } from './users.repository';
 export class UsersService {
   constructor(private readonly repository: UsersRepository) { }
 
-  async getUsers(): Promise<User[]> {
+  async getAll(): Promise<User[]> {
     return this.repository.findAll();
   }
 
-  async getUser({ id }: UserIdentification): Promise<User> {
+  async getById({ id }: UserIdentification): Promise<User> {
     return this.repository.findOne(Number(id));
   }
 
-  async createUser(userInfo: CreateUserRequest): Promise<User> {
-    return this.repository.create({
-      ...this.formatUserToMatchDatabaseKeys(userInfo),
-    });
+  async create(userInfo: CreateUserRequest): Promise<User> {
+    return this.repository.create(
+      this.formatUserToMatchDatabaseKeys(userInfo)
+    );
   }
 
-  async deleteUser({ id }: UserIdentification): Promise<User> {
+  async delete({ id }: UserIdentification): Promise<User> {
     return this.repository.delete(Number(id));
   }
 
-  async updateUser(
+  async update(
     { id }: UserIdentification,
     userInfo: UpdateUserRequest,
   ): Promise<User> {
-    return this.repository.update(Number(id), {
-      ...this.formatUserToMatchDatabaseKeys(userInfo),
-    });
+    return this.repository.update(
+      Number(id), this.formatUserToMatchDatabaseKeys(userInfo)
+    );
   }
 
   private formatUserToMatchDatabaseKeys(unformattedUser: UpdateUserRequest) {
@@ -43,9 +43,9 @@ export class UsersService {
       email: unformattedUser.email,
       phone_number: unformattedUser.phoneNumber,
       birth_date:
-        unformattedUser.birthDate == undefined
-          ? undefined
-          : new Date(unformattedUser.birthDate),
+        unformattedUser.birthDate
+          ? new Date(unformattedUser.birthDate)
+          : undefined
     };
   }
 }

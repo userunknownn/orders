@@ -25,11 +25,11 @@ import { UsersService } from './users.service';
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly service: UsersService) {}
+  constructor(private readonly service: UsersService) { }
 
   @Get()
   getUsers(): Promise<GetUsersResponse> {
-    return this.service.getUsers();
+    return this.service.getAll();
   }
 
   @Get(':id')
@@ -39,12 +39,12 @@ export class UsersController {
     required: true,
   })
   getUser(@Param() id: UserIdentification): Promise<GetUserResponse> {
-    return this.service.getUser(id);
+    return this.service.getById(id);
   }
 
   @Post()
   createUser(@Body() request: CreateUserRequest): Promise<CreateUserResponse> {
-    return this.service.createUser(request);
+    return this.service.create(request);
   }
 
   @Delete(':id')
@@ -54,7 +54,7 @@ export class UsersController {
     required: true,
   })
   deleteUser(@Param() id: UserIdentification): Promise<DeleteUserResponse> {
-    return this.service.deleteUser(id);
+    return this.service.delete(id);
   }
 
   @Patch(':id')
@@ -67,6 +67,6 @@ export class UsersController {
     @Param() id: UserIdentification,
     @Body() request: UpdateUserRequest,
   ): Promise<UpdateUserResponse> {
-    return this.service.updateUser(id, request);
+    return this.service.update(id, request);
   }
 }
